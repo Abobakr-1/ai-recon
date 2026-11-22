@@ -2,7 +2,6 @@
 
 > Reconnaissance tooling for **authorized** security testing of AI-enabled
 > applications (chatbots, RAG systems, agents, MCP servers), built directly on
-> the **OSAI / OffSec AI-300 Chapter 2** methodology.
 >
 > **Developed by: AboBakr Mohamed**
 
