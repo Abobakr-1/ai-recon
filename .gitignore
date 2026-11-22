@@ -14,6 +14,12 @@ evidence/
 findings.json
 report.md
 
+# real authorization scopes (keep the template, ignore local copies)
+authorization.txt
+authorization.yaml
+authorization.yml
+!authorization.txt.example
+
 # lab runtime
 lab/lab.log
 lab/*.log

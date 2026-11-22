@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import fnmatch
 import ipaddress
+import re
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -191,14 +192,33 @@ class Scope:
 
     @classmethod
     def from_file(cls, path: str | Path) -> "Scope":
-        """Load a scope from a YAML or JSON file, or from a plain host list."""
+        """Load a scope from a YAML/JSON mapping, or from a plain host list.
+
+        Detection is based on the first *meaningful* line (comments and blank
+        lines stripped), so a YAML file that begins with comments is still
+        parsed as YAML. This matters for safety: if a mapping were ever parsed
+        as a host list, its ``deny:`` values would be misread as ``allow``
+        entries and the deny would be silently dropped.
+        """
         p = Path(path)
         if not p.exists():
             raise ScopeError(f"scope file not found: {p}")
         text = p.read_text(encoding="utf-8", errors="replace")
-        stripped = text.lstrip()
-        # YAML/JSON mapping?
-        if stripped.startswith("{") or (":" in text and "\n" not in text.split(":")[0]):
+
+        # First non-comment, non-blank line decides the format.
+        first = ""
+        for line in text.splitlines():
+            stripped = line.split("#", 1)[0].strip()
+            if stripped:
+                first = stripped
+                break
+
+        looks_like_mapping = (
+            first.startswith("{")
+            or re.match(r"^[A-Za-z_][\w-]*\s*:", first) is not None
+        )
+
+        if looks_like_mapping:
             try:
                 import yaml  # type: ignore
                 data = yaml.safe_load(text)
@@ -206,7 +226,14 @@ class Scope:
                     return cls.from_dict(data)
             except Exception:
                 pass
-        # Otherwise treat as a newline/ comma separated host list.
+            # A mapping-shaped file that failed to parse must NOT silently fall
+            # back to host-list mode (that could turn deny into allow).
+            raise ScopeError(
+                f"scope file {p} looks like YAML/JSON but could not be parsed. "
+                "Fix the syntax, or use a plain host list (one host per line)."
+            )
+
+        # Plain host list: one host/glob/CIDR per line.
         hosts: list[str] = []
         for line in text.splitlines():
             line = line.split("#", 1)[0].strip()

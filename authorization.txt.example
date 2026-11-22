@@ -1,0 +1,60 @@
+# =============================================================================
+# AI RECON - AUTHORIZATION SCOPE FILE (example)
+# =============================================================================
+# This is the file that tells AI RECON WHAT YOU ARE AUTHORIZED TO TEST.
+#
+# Use it like this:
+#     ai-recon active <url> --scope authorization.txt
+#     ai-recon full   <url> --scope authorization.txt
+#
+# The file is the AUDIT TRAIL for active testing: it records which assets you
+# claim permission to probe and who authorized it. Keep it with your engagement
+# records. Active and full recon REFUSE to run against any host not listed here.
+#
+# Passive recon does NOT need this file:
+#     ai-recon passive https://chatgpt.com      # allowed, public host
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# FORMAT A - plain host list (simplest)
+# -----------------------------------------------------------------------------
+# Put one host per line. Blank lines and lines starting with # are ignored.
+# Entries may be an exact host, a glob (*.example.com) or a CIDR (10.0.0.0/24).
+#
+# Delete this block if you use FORMAT B below.
+
+# 10.0.0.5                      # exact IP
+# app.example.com               # exact hostname
+# *.internal.example.com        # wildcard subdomains
+# 192.168.50.0/24               # whole lab subnet
+# 127.0.0.1                     # your own machine
+
+
+# -----------------------------------------------------------------------------
+# FORMAT B - YAML with full detail (recommended for real engagements)
+# -----------------------------------------------------------------------------
+
+# Assets you ARE authorized to test (active/full). Same matching rules as above.
+allow:
+  - 127.0.0.1                   # your own machine / local lab
+  - 192.168.50.0/24             # a lab subnet you own
+  # - app.client-example.com    # a signed client engagement asset
+  # - *.staging.mycompany.com   # assets you own
+
+# Assets that are ALWAYS refused, even in passive mode. DENY WINS over ALLOW.
+deny:
+  - production.mycompany.com
+  - payments.example.com
+  # - 10.0.0.1                  # e.g. a gateway you must not touch
+
+# Permit private/loopback/RFC1918 targets for ACTIVE testing without listing
+# each one. Convenience for your own lab. Never rely on this for real targets.
+allow_private: false
+
+# Free-text notes for the engagement record.
+note: "Authorized assessment - scope agreed in writing, ref ENG-2026-001"
+
+# Who authorized this testing (the asset owner / client / program). This is the
+# human accountable for the authorization.
+authorized_by: "Jane Doe, Security Owner <jane@client-example.com>"

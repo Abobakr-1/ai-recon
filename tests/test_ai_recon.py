@@ -73,6 +73,56 @@ class TestScope(unittest.TestCase):
         finally:
             os.unlink(p)
 
+    def test_yaml_with_leading_comments_keeps_deny(self):
+        # regression: a comment-first YAML file must NOT be parsed as a host
+        # list, or its `deny:` values would be misread as allow entries.
+        import tempfile, os
+        content = (
+            "# engagement scope\n"
+            "# owner: Jane\n"
+            "\n"
+            "allow:\n"
+            "  - target.test\n"
+            "deny:\n"
+            "  - forbidden.test\n"
+        )
+        with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False) as f:
+            f.write(content)
+            p = f.name
+        try:
+            s = Scope.from_file(p)
+            self.assertIn("target.test", s.allow)
+            self.assertIn("forbidden.test", s.deny)
+            self.assertTrue(s.decide("https://target.test", Mode.ACTIVE).allowed)
+            # deny must win even in passive mode
+            self.assertFalse(s.decide("https://forbidden.test", Mode.PASSIVE).allowed)
+        finally:
+            os.unlink(p)
+
+    def test_host_list_file_still_works(self):
+        import tempfile, os
+        with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False) as f:
+            f.write("# only a list here\nweb.test\napi.test\n")
+            p = f.name
+        try:
+            s = Scope.from_file(p)
+            self.assertIn("web.test", s.allow)
+            self.assertIn("api.test", s.allow)
+            self.assertEqual(s.deny, [])
+        finally:
+            os.unlink(p)
+
+    def test_malformed_yaml_raises_instead_of_falling_back(self):
+        import tempfile, os
+        with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as f:
+            f.write("allow: [unclosed\n")
+            p = f.name
+        try:
+            with self.assertRaises(ScopeError):
+                Scope.from_file(p)
+        finally:
+            os.unlink(p)
+
 
 class TestPlatformDetection(unittest.TestCase):
     def test_openai_from_unique_header(self):

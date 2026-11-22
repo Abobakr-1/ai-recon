@@ -46,6 +46,11 @@ Rules that hold in every tier:
 
 Do not use active testing against anything you are not authorized to test.
 
+> **Which file grants authorization?** The one you pass to **`--scope`**. Full
+> details, formats and worked examples are in
+> **[`AUTHORIZATION.md`](AUTHORIZATION.md)**; copy-and-edit template:
+> **[`authorization.txt.example`](authorization.txt.example)**.
+
 ---
 
 ## Install
