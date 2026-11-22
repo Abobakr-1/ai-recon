@@ -3,15 +3,16 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "airecon"
+name = "ai-recon"
 version = "1.0.0"
-description = "AI-system reconnaissance toolkit (OSAI Ch2 methodology) for authorized security testing"
+description = "AI RECON - AI-system reconnaissance toolkit (OSAI Ch2 methodology) by AboBakr Mohamed, for authorized security testing"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
 dependencies = ["requests>=2.25", "PyYAML>=5.4"]
 
 [project.scripts]
+ai-recon = "airecon.cli:main"
 airecon = "airecon.cli:main"
 
 [tool.setuptools.packages.find]

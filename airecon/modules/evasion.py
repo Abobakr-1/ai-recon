@@ -102,7 +102,7 @@ def run(target: str, http, findings: Findings, *, examples: list[str] | None = N
         MODULE, "Timing / cadence evasion (D02, D03)",
         "Rapid sequential endpoint probes and repeated identity questions "
         "create detectable signatures. Space requests 30-60s, interleave "
-        "benign page fetches, and vary query phrasing. airecon's --stealth, "
+        "benign page fetches, and vary query phrasing. AI RECON's --stealth, "
         "--min-delay and --jitter implement the pacing half of this.",
         Confidence.INFO, tags=["evasion", "D02", "D03"],
     )

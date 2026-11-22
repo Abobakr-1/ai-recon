@@ -43,25 +43,20 @@ echo "[*] installing airecon + dependencies"
 "$VENV/bin/pip" install --quiet -e "$HERE"
 
 # --- launcher -------------------------------------------------------------- #
-LAUNCHER="$BIN/airecon"
-echo "[*] writing launcher: $LAUNCHER"
-if [[ "$MODE" == "system" ]]; then
-  cat > "$LAUNCHER" <<EOF
+echo "[*] writing launchers: $BIN/ai-recon and $BIN/airecon"
+cat > "$BIN/ai-recon" <<EOF
 #!/usr/bin/env bash
-exec "$VENV/bin/airecon" "\$@"
+exec "$VENV/bin/ai-recon" "\$@"
 EOF
-  chmod +x "$LAUNCHER"
-else
-  cat > "$LAUNCHER" <<EOF
+cat > "$BIN/airecon" <<EOF
 #!/usr/bin/env bash
-exec "$VENV/bin/airecon" "\$@"
+exec "$VENV/bin/ai-recon" "\$@"
 EOF
-  chmod +x "$LAUNCHER"
-fi
+chmod +x "$BIN/ai-recon" "$BIN/airecon"
 
 echo
-echo "[+] installed."
-echo "    run:  airecon --help"
+echo "[+] installed: AI RECON (developed by AboBakr Mohamed)"
+echo "    run:  ai-recon --help     (alias: airecon)"
 if [[ "$MODE" == "user" ]]; then
   case ":$PATH:" in
     *":$HOME/.local/bin:"*) ;;

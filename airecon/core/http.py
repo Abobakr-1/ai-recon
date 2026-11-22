@@ -76,7 +76,7 @@ class HttpClient:
     jitter: float = 0.0             # extra random [0, jitter] seconds
     stealth: bool = False           # blend probes with decoy traffic
     timeout: float = 30.0
-    user_agent: str = "airecon/1.0 (+authorized-recon)"
+    user_agent: str = "ai-recon/1.0 (+authorized-recon)"
     verify_tls: bool = True
     max_retries: int = 1
     evidence_dir: Path | None = None

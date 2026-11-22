@@ -1,14 +1,14 @@
-"""airecon CLI — orchestrates the OSAI Ch2 recon methodology.
+"""AI RECON CLI — orchestrates the OSAI Ch2 recon methodology.
 
 Usage:
-  airecon scope --allow 192.168.50.31 [--allow-private] [--save]
-  airecon passive   <target>
-  airecon active    <target>
-  airecon full      <target>
-  airecon repo      <path>
-  airecon evasion   <target> [--query "..."]
-  airecon scan      <target>          # everything network-side
-  airecon rules     [--query "..."]   # check queries against detection rules
+  ai-recon scope --allow 192.168.50.31 [--allow-private] [--save]
+  ai-recon passive   <target>
+  ai-recon active    <target>
+  ai-recon full      <target>
+  ai-recon repo      <path>
+  ai-recon evasion   <target> [--query "..."]
+  ai-recon scan      <target>          # everything network-side
+  ai-recon rules     [--query "..."]   # check queries against detection rules
 
 Global options:
   --scope-file PATH   scope config (default ~/.config/airecon/scope.yaml)
@@ -278,12 +278,15 @@ def cmd_rules(args) -> int:
 # --------------------------------------------------------------------------- #
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="airecon",
-        description="AI-system reconnaissance toolkit (OSAI Ch2 methodology). "
-                    "Authorized testing only.",
+        prog="ai-recon",
+        description="AI RECON - AI-system reconnaissance toolkit "
+                    "(OSAI Ch2 methodology). Authorized testing only. "
+                    "Developed by: AboBakr Mohamed",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    p.add_argument("--version", action="version", version=f"airecon {__version__}")
+    p.add_argument("--version", action="version",
+                   version=f"AI RECON (ai-recon) {__version__} - "
+                           f"Developed by: AboBakr Mohamed")
 
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument("--allow", action="append", metavar="HOST",

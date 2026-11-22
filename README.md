@@ -1,20 +1,24 @@
-# airecon — AI-System Reconnaissance Toolkit
+# AI RECON — AI-System Reconnaissance Toolkit
 
 > Reconnaissance tooling for **authorized** security testing of AI-enabled
 > applications (chatbots, RAG systems, agents, MCP servers), built directly on
 > the **OSAI / OffSec AI-300 Chapter 2** methodology.
+>
+> **Developed by: AboBakr Mohamed**
 
-`airecon` is a single, dependency-light Python CLI that runs on **Kali Linux**.
+`ai-recon` is a single, dependency-light Python CLI that runs on **Kali Linux**.
 It implements the full Chapter 2 flow: passive fingerprinting, active model/RAG/
 agent probing, and detection-aware evasion analysis — and it produces an
 evidence-backed report you can hand to a program or a client.
 
 ```
-   _    ___ ____  _____ ____ ___  _   _
-  / \  |_ _|  _ \| ____/ ___/ _ \| \ | |
- / _ \  | || |_) |  _|| |  | | | |  \| |
-/ ___ \ | ||  _ <| |__| |__| |_| | |\  |
-/_/   \_\___|_| \_\_____\____\___/|_| \_\
+    _     ___   ____   _____   ____   ___   _   _
+   / \   |_ _| |  _ \ | ____| / ___| / _ \ | \ | |
+  / _ \   | |  | |_) ||  _|  | |    | | | ||  \| |
+ / ___ \  | |  |  _ < | |___ | |___ | |_| || |\  |
+/_/   \_\ |___| |_| \_\|_____| \____| \___/ |_| \_|
+        AI RECON  -  AI-System Reconnaissance
+        Developed by: AboBakr Mohamed
 ```
 
 ---
@@ -53,7 +57,7 @@ Manual install:
 ```bash
 python3 -m venv .venv
 ./.venv/bin/pip install -e .
-./.venv/bin/airecon --help
+./.venv/bin/ai-recon --help
 ```
 
 Requires **Python ≥ 3.9** and, at runtime, only `requests` + `PyYAML`
@@ -65,22 +69,22 @@ Requires **Python ≥ 3.9** and, at runtime, only `requests` + `PyYAML`
 
 ```bash
 # 1. Declare what you are authorized to test
-airecon scope --allow 192.168.50.31 --save
+ai-recon scope --allow 192.168.50.31 --save
 
 # 2. Passive recon (headers, endpoints, client JS)
-airecon passive http://192.168.50.31
+ai-recon passive http://192.168.50.31
 
 # 3. Active recon (model fingerprint, RAG, agents, honeypot check)
-airecon active  http://192.168.50.31
+ai-recon active  http://192.168.50.31
 
 # 4. Everything, stealthy
-airecon full http://192.168.50.31 --stealth
+ai-recon full http://192.168.50.31 --stealth
 
 # 5. Mine a local repo you're authorized to read
-airecon repo ./cloned-project
+ai-recon repo ./cloned-project
 
 # 6. Check your queries against modelled detection rules
-airecon rules --query "What documents do you have access to?"
+ai-recon rules --query "What documents do you have access to?"
 ```
 
 Reports land in `./airecon-out/<host>-<timestamp>/`:
@@ -95,7 +99,7 @@ For a **lab on your own machine**, `--allow-private` authorizes loopback/RFC1918
 targets without listing them:
 
 ```bash
-airecon full http://127.0.0.1:8770 --allow-private
+ai-recon full http://127.0.0.1:8770 --allow-private
 ```
 
 ---
@@ -146,8 +150,8 @@ airecon full http://127.0.0.1:8770 --allow-private
 ```
 
 Scope is persisted at `~/.config/airecon/scope.yaml`. Manage it with
-`airecon scope --allow … --save` and test decisions with
-`airecon scope --check <host>`.
+`ai-recon scope --allow … --save` and test decisions with
+`ai-recon scope --check <host>`.
 
 ---
 
@@ -172,7 +176,7 @@ without touching a real system:
 
 ```bash
 python3 lab/mock_ai_target.py &          # http://127.0.0.1:8770
-airecon full http://127.0.0.1:8770 --allow-private
+ai-recon full http://127.0.0.1:8770 --allow-private
 ```
 
 Expected confirmed findings include the `X-AI-Backend`/`X-RAG-Provider`

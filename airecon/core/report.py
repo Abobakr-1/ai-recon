@@ -30,11 +30,11 @@ def render_markdown(target: str, findings: Findings, *,
                     not_tested: list[str] | None = None,
                     tool_version: str = "1.0.0") -> str:
     lines: list[str] = []
-    lines.append(f"# airecon recon report")
+    lines.append(f"# AI RECON recon report")
     lines.append("")
     lines.append(f"- **Target:** `{target}`")
     lines.append(f"- **Generated (UTC):** {_now()}")
-    lines.append(f"- **Tool:** airecon v{tool_version} (OSAI Ch2 methodology)")
+    lines.append(f"- **Tool:** AI RECON (ai-recon) v{tool_version} (OSAI Ch2 methodology)")
     if scope_note:
         lines.append(f"- **Scope note:** {scope_note}")
     lines.append("")
@@ -99,7 +99,7 @@ def write_report(outdir: Path, target: str, findings: Findings, **kw) -> dict:
     payload = {
         "target": target,
         "generated_utc": _now(),
-        "tool": "airecon",
+        "tool": "AI RECON",
         "tool_version": kw.get("tool_version", "1.0.0"),
         "findings": findings.to_list(),
     }

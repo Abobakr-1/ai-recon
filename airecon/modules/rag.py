@@ -65,7 +65,7 @@ def _base(target: str) -> str:
 def _post_chat(http: HttpClient, base: str, query: str, chat_path: str = "/api/chat"):
     url = base + chat_path
     for field in ("query", "message", "prompt"):
-        ex = http.post(url, json_body={field: query, "session_id": "airecon-rag"},
+        ex = http.post(url, json_body={field: query, "session_id": "ai-recon-rag"},
                        label="rag:probe")
         if ex.status and ex.status < 400:
             try:

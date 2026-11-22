@@ -1,7 +1,7 @@
 """Scope guard.
 
 A tool that probes AI systems must fail closed. This module is the single
-choke point: every active request path in airecon calls ``Scope.authorize()``
+choke point: every active request path in AI RECON calls ``Scope.authorize()``
 before touching the network. If the target host is not in the configured
 allow-list, the request is refused by default.
 
@@ -78,7 +78,7 @@ class Scope:
 
         return False, (
             f"host '{host}' is NOT in scope. Add it explicitly with "
-            f"`airecon scope --allow {host}` (or --allow-private for your own lab)."
+            f"`ai-recon scope --allow {host}` (or --allow-private for your own lab)."
         )
 
     def authorize(self, target: str) -> str:
