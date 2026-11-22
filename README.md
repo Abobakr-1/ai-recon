@@ -2,7 +2,6 @@
 
 > Reconnaissance tooling for **authorized** security testing of AI-enabled
 > applications (chatbots, RAG systems, agents, MCP servers), built directly on
->
 > **Developed by: AboBakr Mohamed**
 
 `ai-recon` is a single, dependency-light Python CLI that runs on **Kali Linux**.
