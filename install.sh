@@ -9,6 +9,9 @@
 #   ./install.sh            # system-wide  -> /usr/local/bin/ai-recon
 #   ./install.sh --user     # current user -> ~/.local/bin/ai-recon
 #
+# On Windows, use the PowerShell installer instead:
+#   irm https://raw.githubusercontent.com/Abobakr-1/ai-recon/master/bootstrap.ps1 | iex
+#
 set -euo pipefail
 
 REPO_URL="https://github.com/Abobakr-1/ai-recon.git"

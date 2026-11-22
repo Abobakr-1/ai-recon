@@ -48,18 +48,21 @@ Do not use active testing against anything you are not authorized to test.
 
 ---
 
-## Install — 3 simple steps (Kali Linux)
+## Install
 
-### ✨ Easiest — one command
+AI RECON runs on **Kali/Debian Linux and Windows**. Both installers create a
+private virtualenv, install the only two dependencies (`requests`, `PyYAML`),
+and add an `ai-recon` command to your PATH. Python **3.9+** is required.
+
+### 🐧 Kali / Debian / Linux
+
+**Easiest — one command**
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Abobakr-1/ai-recon/master/bootstrap.sh | sudo bash
 ```
 
-That's it. It installs everything and creates the `ai-recon` command.
-Check it with: `ai-recon --version`
-
-### Or the manual 3 steps
+**Or the manual 3 steps**
 
 ```bash
 git clone https://github.com/Abobakr-1/ai-recon.git   # 1. download
@@ -67,29 +70,60 @@ cd ai-recon                                            # 2. enter folder
 sudo ./install.sh                                      # 3. install (system-wide)
 ```
 
-Prefer **no sudo**? Use a user install instead of step 3:
+No sudo? Use a user install instead of step 3: `./install.sh --user`
+(then reopen your terminal).
 
-```bash
-./install.sh --user
-# then reopen your terminal (or: source ~/.bashrc)
-```
-
-### If a prerequisite is missing
+If a prerequisite is missing:
 
 ```bash
 sudo apt update && sudo apt install -y python3 python3-venv python3-pip git
 ```
 
-### Verify it works
+### 🪟 Windows (PowerShell)
 
-```bash
-ai-recon --version         # -> AI RECON (ai-recon) 1.1.0 - Developed by: AboBakr Mohamed
-ai-recon --help            # shows all commands
+**Easiest — one command** (PowerShell 5.1+; no admin needed)
+
+```powershell
+irm https://raw.githubusercontent.com/Abobakr-1/ai-recon/master/bootstrap.ps1 | iex
 ```
 
-> Requirements: Python ≥ 3.9 (Kali ships it). Runtime deps `requests` + `PyYAML`
-> are installed automatically into a private virtualenv — nothing is added to
-> your system Python.
+**Or from a clone**
+
+```powershell
+git clone https://github.com/Abobakr-1/ai-recon.git   # 1. download
+cd ai-recon                                            # 2. enter folder
+powershell -ExecutionPolicy Bypass -File .\install.ps1  # 3. install (current user)
+```
+
+Options:
+
+```powershell
+.\install.ps1              # per-user install -> %LOCALAPPDATA%i-recon (no admin)
+.\install.ps1 -System      # all-users install -> %ProgramData%i-recon (elevated)
+.\install.ps1 -NoPath      # do not modify PATH
+```
+
+If a prerequisite is missing:
+
+```powershell
+winget install Python.Python.3.12   # Python 3.9+
+winget install Git.Git              # git (only needed for the clone/one-liner paths)
+```
+
+> **Note on `python`:** on Windows the bare `python` command is often the
+> Microsoft Store stub. The installer prefers the `py -3` launcher and falls
+> back to `python`/`python3`, so you do not need to fix PATH yourself.
+
+### Verify it works (both platforms)
+
+```
+ai-recon --version    # -> AI RECON (ai-recon) 1.1.0 - Developed by: AboBakr Mohamed
+ai-recon --help       # shows all commands
+```
+
+> Runtime deps are installed into a private virtualenv — nothing is added to
+> your system Python. The bold banner falls back to plain ASCII on consoles that
+> cannot render box-drawing characters (older Windows terminals).
 
 ---
 

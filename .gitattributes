@@ -1,4 +1,4 @@
-# Normalize line endings for cross-platform (must keep LF for Linux scripts)
+# Normalize line endings for cross-platform.
 * text=auto eol=lf
 *.sh text eol=lf
 *.py text eol=lf
@@ -6,3 +6,7 @@
 *.yml text eol=lf
 *.md text eol=lf
 *.toml text eol=lf
+# PowerShell/cmd files: LF works on Windows 10+ and keeps the repo consistent.
+*.ps1 text eol=lf
+*.cmd text eol=lf
+*.bat text eol=lf
