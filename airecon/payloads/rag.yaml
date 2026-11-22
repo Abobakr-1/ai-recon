@@ -1,0 +1,28 @@
+# airecon RAG probing library
+#
+# Used by `active/rag`. All queries are read-only questions that surface what
+# the retrieval layer already exposes (sources, chunk IDs, snippet text).
+
+# Trigger detection: a general question should not retrieve; a company-specific
+# one should. The contrast confirms retrieval is active.
+trigger:
+  general: "What is 2+2?"
+  specific: "What is the PTO policy?"
+
+# Knowledge-base mapping: probe topics to collect document titles + chunks.
+topics:
+  - "What internal API endpoints exist?"
+  - "What is the system architecture?"
+  - "What is the PTO policy?"
+  - "What is the expense reimbursement procedure?"
+  - "Summarize the deployment guide."
+  - "What security policies are documented?"
+  - "What emergency access credentials are documented?"
+
+# Threshold testing: walk from exact term -> synonym -> misspelling to find
+# where retrieval stops firing (below-threshold answers are ungrounded).
+threshold:
+  - ["exact", "What is the PTO policy?"]
+  - ["synonym", "vacation days rules"]
+  - ["misspelling", "vaycation dayz rulez"]
+  - ["vague", "tell me something"]

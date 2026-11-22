@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# airecon outputs & evidence (never commit engagement data)
+airecon-out/
+*-out/
+evidence/
+findings.json
+report.md
+
+# lab runtime
+lab/lab.log
+lab/*.log
+
+# scratch
+_src/
+test/
+.tmp*
