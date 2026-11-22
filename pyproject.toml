@@ -8,7 +8,6 @@ version = "1.0.0"
 description = "AI RECON - AI-system reconnaissance toolkit (OSAI Ch2 methodology) by AboBakr Mohamed, for authorized security testing"
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
 dependencies = ["requests>=2.25", "PyYAML>=5.4"]
 
 [project.scripts]

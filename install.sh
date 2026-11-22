@@ -13,7 +13,9 @@ set -euo pipefail
 
 REPO_URL="https://github.com/Abobakr-1/ai-recon.git"
 MODE="${1:-system}"
-[[ "$MODE" == "--user" ]] && MODE="user"
+[[ -z "$MODE" ]] && MODE="system"
+[[ "$MODE" == "--user" || "$MODE" == "user" ]] && MODE="user"
+[[ "$MODE" == "system" || "$MODE" == "--system" ]] && MODE="system"
 
 step() { printf '\n\033[1;36m==> %s\033[0m\n' "$1"; }
 ok()   { printf '\033[1;32m[+]\033[0m %s\n' "$1"; }
@@ -53,16 +55,22 @@ mkdir -p "$(dirname "$VENV")" "$BIN"
 step "creating virtualenv: $VENV"
 "$PY" -m venv "$VENV"
 
+# venv layout differs: Linux/macOS -> bin/, Windows -> Scripts/
+if [[ -x "$VENV/bin/python" ]]; then VPY="$VENV/bin/python"; else VPY="$VENV/Scripts/python.exe"; fi
+[[ -x "$VPY" ]] || die "virtualenv python not found at $VENV"
+
 step "installing AI RECON + dependencies (requests, PyYAML)"
-"$VENV/bin/pip" install --quiet --upgrade pip
-"$VENV/bin/pip" install --quiet "$SRC_DIR"
+"$VPY" -m pip install --quiet --upgrade pip
+"$VPY" -m pip install --quiet "$SRC_DIR"
 
 # --- 4. launchers ---------------------------------------------------------- #
+# Resolve the venv console-script path for either layout.
+if [[ -x "$VENV/bin/ai-recon" ]]; then VEXE="$VENV/bin/ai-recon"; else VEXE="$VENV/Scripts/ai-recon.exe"; fi
 step "writing launchers into $BIN"
 for name in ai-recon airecon; do
   cat > "$BIN/$name" <<EOF
 #!/usr/bin/env bash
-exec "$VENV/bin/ai-recon" "\$@"
+exec "$VEXE" "\$@"
 EOF
   chmod +x "$BIN/$name"
   ok "installed: $BIN/$name"
