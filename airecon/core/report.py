@@ -34,7 +34,7 @@ def render_markdown(target: str, findings: Findings, *,
     lines.append("")
     lines.append(f"- **Target:** `{target}`")
     lines.append(f"- **Generated (UTC):** {_now()}")
-    lines.append(f"- **Tool:** AI RECON (ai-recon) v{tool_version} (OSAI Ch2 methodology)")
+    lines.append(f"- **Tool:** AI RECON (ai-recon) v{tool_version}")
     if scope_note:
         lines.append(f"- **Scope note:** {scope_note}")
     lines.append("")

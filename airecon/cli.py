@@ -257,7 +257,7 @@ def cmd_evasion(args) -> int:
 def cmd_rules(args) -> int:
     queries = args.query or []
     if not queries:
-        print("Modelled detection rules (OSAI 2.4):")
+        print("Modelled detection rules:")
         for rid, desc, pat in evasion.DETECTION_RULES:
             print(f"  {rid}: {desc}")
             print(f"      pattern: {pat}")
@@ -280,7 +280,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="ai-recon",
         description="AI RECON - AI-system reconnaissance toolkit "
-                    "(OSAI Ch2 methodology). Authorized testing only. "
+                    "Authorized testing only. "
                     "Developed by: AboBakr Mohamed",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )

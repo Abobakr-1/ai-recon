@@ -1,12 +1,13 @@
 # AI RECON — AI-System Reconnaissance Toolkit
 
 > Reconnaissance tooling for **authorized** security testing of AI-enabled
-> applications (chatbots, RAG systems, agents, MCP servers), built directly on
+> applications (chatbots, RAG systems, agents, MCP servers).
+>
 > **Developed by: AboBakr Mohamed**
 
 `ai-recon` is a single, dependency-light Python CLI that runs on **Kali Linux**.
-It implements the full Chapter 2 flow: passive fingerprinting, active model/RAG/
-agent probing, and detection-aware evasion analysis — and it produces an
+It runs the full AI-recon flow: passive fingerprinting, active model/RAG/agent
+probing, and detection-aware evasion analysis — and it produces an
 evidence-backed report you can hand to a program or a client.
 
 ```

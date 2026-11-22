@@ -28,7 +28,7 @@ BANNER_BOLD = """
 ╚═╝  ╚═╝╚═╝   ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝
         AI RECON  -  AI-System Reconnaissance
         Developed by: AboBakr Mohamed
-        OSAI Ch2 methodology  |  Authorized testing only
+        Authorized testing only
 """
 
 BANNER_ASCII = r"""
@@ -39,7 +39,7 @@ BANNER_ASCII = r"""
 /_/   \_\ |___|     |_| \_\|_____| \____| \___/ |_| \_|
         AI RECON  -  AI-System Reconnaissance
         Developed by: AboBakr Mohamed
-        OSAI Ch2 methodology  |  Authorized testing only
+        Authorized testing only
 """
 
 
