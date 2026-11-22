@@ -10,7 +10,7 @@ scope that the target matches. See README.md and `ai-recon scope --help`.
 Developed by: AboBakr Mohamed
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __author__ = "AboBakr Mohamed"
 __display_name__ = "AI RECON"
 

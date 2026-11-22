@@ -28,7 +28,7 @@ def _now() -> str:
 def render_markdown(target: str, findings: Findings, *,
                     scope_note: str = "", coverage: dict | None = None,
                     not_tested: list[str] | None = None,
-                    tool_version: str = "1.0.0") -> str:
+                    tool_version: str = "1.1.0") -> str:
     lines: list[str] = []
     lines.append(f"# AI RECON recon report")
     lines.append("")
@@ -38,9 +38,13 @@ def render_markdown(target: str, findings: Findings, *,
     if scope_note:
         lines.append(f"- **Scope note:** {scope_note}")
     lines.append("")
-    lines.append("> Findings are observations with an explicit confidence level. "
-                 "A signal is not a vulnerability until a broken trust boundary "
-                 "is demonstrated.")
+    lines.append("> This report mixes two kinds of entry. **Observations** are "
+                 "informational facts collected passively (headers, DNS, TLS, "
+                 "public JS, platform/tech identifiers); they carry a confidence "
+                 "level and are *not* vulnerabilities by themselves. A finding "
+                 "becomes a **security issue** only when a broken trust boundary "
+                 "is demonstrated — which this reconnaissance tool does not do. "
+                 "Read the confidence field on every item.")
     lines.append("")
 
     if coverage:
@@ -100,7 +104,7 @@ def write_report(outdir: Path, target: str, findings: Findings, **kw) -> dict:
         "target": target,
         "generated_utc": _now(),
         "tool": "AI RECON",
-        "tool_version": kw.get("tool_version", "1.0.0"),
+        "tool_version": kw.get("tool_version", "1.1.0"),
         "findings": findings.to_list(),
     }
     (outdir / "findings.json").write_text(json.dumps(payload, indent=2), encoding="utf-8")

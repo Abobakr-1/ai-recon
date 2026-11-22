@@ -22,7 +22,7 @@ from typing import Any
 
 import requests
 
-from .scope import Scope, ScopeError
+from .scope import Mode, Scope, ScopeError
 
 # Headers that should never be written verbatim into reports/console.
 REDACTED_HEADERS = {"authorization", "cookie", "set-cookie", "x-api-key",
@@ -72,11 +72,12 @@ def redact_headers(headers: dict[str, str]) -> dict[str, str]:
 @dataclass
 class HttpClient:
     scope: Scope
+    mode: Mode = Mode.ACTIVE    # passive recon needs no allow-list; active fails closed
     min_delay: float = 0.0          # seconds between requests
     jitter: float = 0.0             # extra random [0, jitter] seconds
     stealth: bool = False           # blend probes with decoy traffic
     timeout: float = 30.0
-    user_agent: str = "ai-recon/1.0 (+authorized-recon)"
+    user_agent: str = "ai-recon/1.1 (+passive-recon; authorized-active-only)"
     verify_tls: bool = True
     max_retries: int = 1
     evidence_dir: Path | None = None
@@ -114,8 +115,14 @@ class HttpClient:
         data: Any | None = None,
         label: str = "",
         allow_redirects: bool = False,
+        mode: Mode | str | None = None,
     ) -> Exchange:
-        self.scope.authorize(url)  # fail closed
+        # Mode-aware, fail-closed authorization:
+        #   PASSIVE -> publicly reachable hosts allowed (deny still honoured)
+        #   ACTIVE  -> host must be in the explicit authorization scope
+        decision = self.scope.decide(url, mode or self.mode)
+        if not decision.allowed:
+            raise ScopeError(decision.reason)
 
         hdrs = {"User-Agent": self.user_agent, "Accept": "*/*"}
         if headers:

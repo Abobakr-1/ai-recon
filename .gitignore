@@ -22,3 +22,7 @@ lab/*.log
 _src/
 test/
 .tmp*
+
+# test cache
+tests/__pycache__/
+.eggs/

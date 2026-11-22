@@ -1,4 +1,4 @@
-"""endpoints.py — AI endpoint discovery (OSAI 2.2 / 2.3).
+"""active_endpoints.py — active AI endpoint enumeration.
 
 Two techniques combined:
   1. Health/config probing of well-known paths, which often leak model,
@@ -16,7 +16,7 @@ from ..core.detect import COMMON_AI_PATHS, classify_endpoint_status, scan_body
 from ..core.findings import Confidence, Findings
 from ..core.http import HttpClient
 
-MODULE = "passive/endpoints"
+MODULE = "active/endpoints"
 
 HEALTH_PATHS = ["/api/health", "/api/status", "/api/config", "/api/info",
                 "/api/version", "/-/health", "/healthz", "/health", "/readyz"]

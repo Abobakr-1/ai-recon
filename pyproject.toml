@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-recon"
-version = "1.0.0"
+version = "1.1.0"
 description = "AI RECON - AI-system reconnaissance toolkit (OSAI Ch2 methodology) by AboBakr Mohamed, for authorized security testing"
 readme = "README.md"
 requires-python = ">=3.9"

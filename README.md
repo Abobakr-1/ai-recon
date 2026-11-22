@@ -25,18 +25,26 @@ evidence-backed report you can hand to a program or a client.
 
 ## ⚠️ Authorization — read first
 
-`ai-recon` is a **recon** tool, not a weapon, but it makes real network requests.
+`ai-recon` splits reconnaissance into **two tiers by authorization need**:
 
-- Every active request passes through a **fail-closed scope guard**. If the
-  target host is not in your allow-list, the request is refused.
-- Use it against: **your own systems**, a **signed client engagement**, an
-  **in-scope bug bounty asset**, or a **CTF / lab** you are permitted to test.
-- Account ownership does **not** authorize testing a vendor's production
-  chatbot (e.g. chatgpt.com) unless a program explicitly scopes it.
-- Read the program's policy: exclusions, allowed methods, rate limits, and
-  which AI surfaces (agent harness vs raw model API) are in scope.
+| Tier | Command | What it does | Authorization |
+|---|---|---|---|
+| **Passive** | `ai-recon passive <url>` | Collects only what any anonymous visitor already sees: DNS, TLS certificate, HTTP headers, public page/JS, well-known files, platform/tech detection. | **None required** for publicly reachable hosts. Works on ChatGPT, Gemini, Claude, any public AI site. |
+| **Active / Full** | `ai-recon active <url> --scope <file>` · `ai-recon full <url> --scope <file>` | Hypothesis-driven probing: endpoint enumeration, model fingerprinting, RAG/agent/MCP probing, honeypot checks. | **Fail-closed.** The host must be named in an explicit authorization scope or the run is refused. |
 
-Do not use this against anything you are not authorized to test.
+Rules that hold in every tier:
+
+- An explicit **deny** entry always wins, even for passive.
+- There is **no flag to disable** the active scope guard. Authorization must be
+  asserted deliberately (`--scope <file>`, `--allow <host>`, or `--allow-private`
+  for your own lab) and is auditable from the scope file.
+- Use active/full only against **your own systems**, a **signed engagement**, an
+  **in-scope bug bounty asset**, or a **CTF/lab**. Account ownership does **not**
+  authorize testing a vendor's production chatbot unless a program scopes it.
+- Passive collection never brute-forces paths, sends attack payloads, or attempts
+  authentication bypass.
+
+Do not use active testing against anything you are not authorized to test.
 
 ---
 
@@ -75,7 +83,7 @@ sudo apt update && sudo apt install -y python3 python3-venv python3-pip git
 ### Verify it works
 
 ```bash
-ai-recon --version         # -> AI RECON (ai-recon) 1.0.0 - Developed by: AboBakr Mohamed
+ai-recon --version         # -> AI RECON (ai-recon) 1.1.0 - Developed by: AboBakr Mohamed
 ai-recon --help            # shows all commands
 ```
 
@@ -87,23 +95,47 @@ ai-recon --help            # shows all commands
 
 ## Quick start
 
+### Passive recon — any public AI platform, no setup
+
 ```bash
-# 1. Declare what you are authorized to test
-ai-recon scope --allow 192.168.50.31 --save
+ai-recon passive https://chatgpt.com
+ai-recon passive https://gemini.google.com
+ai-recon passive https://claude.ai
+ai-recon passive https://your-own-app.example        # platform + tech fingerprint
+```
 
-# 2. Passive recon (headers, endpoints, client JS)
-ai-recon passive http://192.168.50.31
+You get DNS records, the TLS certificate, HTTP headers, public JS and
+well-known files, a platform/technology verdict with confidence, and any
+custom AI headers the operator exposed.
 
-# 3. Active recon (model fingerprint, RAG, agents, honeypot check)
-ai-recon active  http://192.168.50.31
+### Active recon — only what you are authorized to test
 
-# 4. Everything, stealthy
-ai-recon full http://192.168.50.31 --stealth
+```bash
+# 1. Declare the asset you may test (a scope file is the audit trail)
+printf '10.0.0.5\napp.internal.example\n' > authorized.txt
+# or:  ai-recon scope --allow 10.0.0.5 --authorized-by 'Jane (owner)' --save
 
-# 5. Mine a local repo you're authorized to read
-ai-recon repo ./cloned-project
+# 2. Active recon / full assessment
+ai-recon active https://app.internal.example --scope authorized.txt
+ai-recon full   https://app.internal.example --scope authorized.txt
 
-# 6. Check your queries against modelled detection rules
+# Your own lab (loopback / RFC1918) — no file needed
+ai-recon full http://127.0.0.1:8770 --allow-private
+```
+
+Anything not authorized is refused before a packet is sent:
+
+```bash
+ai-recon active https://example.com
+# [!] authorization required for active testing: host 'example.com' is NOT authorized ...
+# exit 2
+```
+
+### Other commands
+
+```bash
+ai-recon repo ./cloned-project                      # passive repository mining
+ai-recon evasion <url> --query "…"                  # detection/evasion analysis
 ai-recon rules --query "What documents do you have access to?"
 ```
 
@@ -124,38 +156,52 @@ ai-recon full http://127.0.0.1:8770 --allow-private
 
 ---
 
-## What it does — mapped to OSAI Chapter 2
+## What it does
 
-### 2.2 Passive reconnaissance
-
-| Module | Technique | Output |
-|---|---|---|
-| `passive/headers` | HTTP header + body fingerprinting (`curl -I` workflow) | inference servers, gateways, orchestration frameworks, vector DBs, custom `X-AI-*` headers |
-| `passive/endpoints` | Health/config probing **and** the **401-vs-404 existence oracle** | config leaks (`/api/health`), AI routes confirmed to exist |
-| `passive/jsrecon` | Client JS + hidden `data-endpoint` attributes | assistant endpoints, API base, feature flags, hardcoded secrets |
-| `passive/repomine` | Source repository mining | framework deps (cloud vs self-hosted), RAG configs, tool schemas, system prompts, guardrails |
-
-### 2.3 Active reconnaissance
+### Passive reconnaissance (no authorization required)
 
 | Module | Technique | Output |
 |---|---|---|
+| `passive/dns` | Public DNS lookups (A/AAAA via OS resolver; CNAME/NS/MX/TXT via a public resolver when reachable) | host records, CNAME chain, SPF/verification TXT; honest "unavailable" when a record type can't be fetched |
+| `passive/tls` | Plain TLS handshake (what a browser sees) | certificate subject/issuer/validity/SAN, negotiated version + cipher |
+| `passive/headers` | HTTP header + page fingerprinting, with a single same-host redirect follow | inference servers, gateways, orchestration frameworks, vector DBs, custom `X-AI-*` headers, WAF/bot-challenge detection |
+| `passive/platform` | Consolidated platform/technology verdict | detected platform (OpenAI/ChatGPT, Gemini, Claude, Copilot, Perplexity, Hugging Face, ...) with confidence + evidence |
+| `passive/jsrecon` | Public client JS + `data-endpoint` attributes | assistant endpoints, API base, feature flags, public API hosts |
+| `passive/wellknown` | Files the site publishes (robots.txt, sitemap, security.txt, OIDC/agent descriptors) | only genuine descriptors - SPA catch-all HTML is rejected |
+| `passive/repomine` | Source repository mining (local clone) | framework deps (cloud vs self-hosted), RAG configs, tool schemas, system prompts, guardrails |
+
+### Active reconnaissance (authorization required)
+
+| Module | Technique | Output |
+|---|---|---|
+| `active/endpoints` | AI path enumeration **and** the **401-vs-404 existence oracle** | exposed config (`/api/health`), AI routes confirmed to exist |
 | `active/fingerprint` | Direct identity probing, **contradiction testing**, knowledge-cutoff probing, behavioral/style analysis, metadata-leak capture | scored **model-family verdict** with confidence |
 | `active/rag` | Retrieval trigger detection, knowledge-base mapping, chunk-ID inference, **threshold testing**, snippet harvesting | document list, chunk IDs, infra/hostname/key leaks, threshold behavior |
 | `active/agent` | MCP `tools/list`, A2A agent cards | tool schemas, capability/permission boundaries, tool-poisoning surface |
-| `defense/honeypot` | Canary/canary-credential recognition | flags planted bait (`…HONEYPOT`, low-entropy "keys") so you never use it |
+| `defense/honeypot` | Canary/canary-credential recognition | flags planted bait (`...HONEYPOT`, low-entropy "keys") so you never use it |
 
-### 2.4 Detection & evasion analysis
+### Detection & evasion analysis
 
 | Module | Technique | Output |
 |---|---|---|
-| `evasion` | Models the defender's keyword/timing rules (E01–E05, D02, D03) and generates stealth query variants | a per-rule evasion playbook + flags noisy queries |
+| `evasion` | Models the defender's keyword/timing rules (E01-E05, D02, D03) and generates stealth query variants | a per-rule evasion playbook + flags noisy queries |
 | `--stealth` / `--min-delay` / `--jitter` | Cadence evasion | paces requests to blend with normal traffic |
+
+### Honest reporting
+
+Every entry carries a confidence level (`confirmed` / `likely` / `possible` /
+`info`). The report separates **observations** (informational facts) from any
+**security issue**, and lists **limitations** - e.g. a Cloudflare challenge on
+`claude.ai` is reported as "limited passive observability", never guessed
+around. Not finding a platform is reported as absence of evidence, not as
+absence of an AI system.
 
 ---
 
 ## Options
 
 ```
+--scope FILE        authorization scope file (required for active/full)
 --allow HOST        add an allow entry for this run (repeatable)
 --allow-private     permit private/loopback targets (your own lab)
 --min-delay N       minimum seconds between requests
@@ -169,9 +215,11 @@ ai-recon full http://127.0.0.1:8770 --allow-private
 -q / --quiet        less console output
 ```
 
-Scope is persisted at `~/.config/ai-recon/scope.yaml`. Manage it with
-`ai-recon scope --allow … --save` and test decisions with
-`ai-recon scope --check <host>`.
+The authorization scope can be a **host list** (`authorized.txt`) or YAML/JSON
+with `allow`, `deny`, `allow_private`, `note`, `authorized_by`. Persisted scopes
+live at `~/.config/ai-recon/scope.yaml`; manage with
+`ai-recon scope --allow <host> --authorized-by '<name>' --save` and test
+decisions with `ai-recon scope --check <host>`.
 
 ---
 
