@@ -12,11 +12,12 @@ agent probing, and detection-aware evasion analysis — and it produces an
 evidence-backed report you can hand to a program or a client.
 
 ```
-    _     ___   ____   _____   ____   ___   _   _
-   / \   |_ _| |  _ \ | ____| / ___| / _ \ | \ | |
-  / _ \   | |  | |_) ||  _|  | |    | | | ||  \| |
- / ___ \  | |  |  _ < | |___ | |___ | |_| || |\  |
-/_/   \_\ |___| |_| \_\|_____| \____| \___/ |_| \_|
+ █████╗ ██╗   ██████╗ ███████╗ ██████╗ ██████╗ ███╗   ██╗
+██╔══██╗██║   ██╔══██╗██╔════╝██╔════╝██╔═══██╗████╗  ██║
+███████║██║   ██████╔╝█████╗  ██║     ██║   ██║██╔██╗ ██║
+██╔══██║██║   ██╔══██╗██╔══╝  ██║     ██║   ██║██║╚██╗██║
+██║  ██║██║   ██║  ██║███████╗╚██████╗╚██████╔╝██║ ╚████║
+╚═╝  ╚═╝╚═╝   ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝
         AI RECON  -  AI-System Reconnaissance
         Developed by: AboBakr Mohamed
 ```
@@ -25,7 +26,7 @@ evidence-backed report you can hand to a program or a client.
 
 ## ⚠️ Authorization — read first
 
-`airecon` is a **recon** tool, not a weapon, but it makes real network requests.
+`ai-recon` is a **recon** tool, not a weapon, but it makes real network requests.
 
 - Every active request passes through a **fail-closed scope guard**. If the
   target host is not in your allow-list, the request is refused.
@@ -40,28 +41,48 @@ Do not use this against anything you are not authorized to test.
 
 ---
 
-## Install (Kali Linux)
+## Install — 3 simple steps (Kali Linux)
+
+### ✨ Easiest — one command
 
 ```bash
-# 1. get the project onto your box (git clone / copy)
-cd airecon
+curl -fsSL https://raw.githubusercontent.com/Abobakr-1/ai-recon/master/bootstrap.sh | sudo bash
+```
 
-# 2. one-shot installer (venv + deps + launcher)
-sudo ./install.sh            # installs a system launcher: /usr/local/bin/airecon
-# or, without sudo (user install):
+That's it. It installs everything and creates the `ai-recon` command.
+Check it with: `ai-recon --version`
+
+### Or the manual 3 steps
+
+```bash
+git clone https://github.com/Abobakr-1/ai-recon.git   # 1. download
+cd ai-recon                                            # 2. enter folder
+sudo ./install.sh                                      # 3. install (system-wide)
+```
+
+Prefer **no sudo**? Use a user install instead of step 3:
+
+```bash
 ./install.sh --user
+# then reopen your terminal (or: source ~/.bashrc)
 ```
 
-Manual install:
+### If a prerequisite is missing
 
 ```bash
-python3 -m venv .venv
-./.venv/bin/pip install -e .
-./.venv/bin/ai-recon --help
+sudo apt update && sudo apt install -y python3 python3-venv python3-pip git
 ```
 
-Requires **Python ≥ 3.9** and, at runtime, only `requests` + `PyYAML`
-(both are in Kali's repos and the default Python).
+### Verify it works
+
+```bash
+ai-recon --version         # -> AI RECON (ai-recon) 1.0.0 - Developed by: AboBakr Mohamed
+ai-recon --help            # shows all commands
+```
+
+> Requirements: Python ≥ 3.9 (Kali ships it). Runtime deps `requests` + `PyYAML`
+> are installed automatically into a private virtualenv — nothing is added to
+> your system Python.
 
 ---
 
@@ -87,7 +108,7 @@ ai-recon repo ./cloned-project
 ai-recon rules --query "What documents do you have access to?"
 ```
 
-Reports land in `./airecon-out/<host>-<timestamp>/`:
+Reports land in `./ai-recon-out/<host>-<timestamp>/`:
 
 ```
 report.md        # human-readable, grouped by confidence
@@ -141,7 +162,7 @@ ai-recon full http://127.0.0.1:8770 --allow-private
 --min-delay N       minimum seconds between requests
 --jitter N          extra random delay up to N seconds
 --stealth           stealth pacing preset (delay + jitter)
---out DIR           output directory (default ./airecon-out/<host>-<ts>)
+--out DIR           output directory (default ./ai-recon-out/<host>-<ts>)
 --no-evidence       skip per-request evidence files
 --chat-path PATH    chat endpoint path (default /v1/chat/completions)
 --field NAME        chat body field: messages | query | message
@@ -149,7 +170,7 @@ ai-recon full http://127.0.0.1:8770 --allow-private
 -q / --quiet        less console output
 ```
 
-Scope is persisted at `~/.config/airecon/scope.yaml`. Manage it with
+Scope is persisted at `~/.config/ai-recon/scope.yaml`. Manage it with
 `ai-recon scope --allow … --save` and test decisions with
 `ai-recon scope --check <host>`.
 
@@ -161,7 +182,7 @@ Scope is persisted at `~/.config/airecon/scope.yaml`. Manage it with
 or an endpoint and they fire payload batteries (jailbreaks, injections,
 toxicity) to find harmful *generations*.
 
-`airecon` is a **reconnaissance** tool: it maps the *application* around the
+`ai-recon` is a **reconnaissance** tool: it maps the *application* around the
 model — infrastructure fingerprints, endpoints, RAG internals, agent tool
 schemas, and detection posture — before you decide what to attack. Use it
 first; then reach for garak/PyRIT for payload-level testing.
@@ -190,7 +211,7 @@ tool schemas, and the honeypot AWS key.
 
 A recon signal is **not** a vulnerability. A header that identifies a backend,
 an open `/api/health`, or a model that self-identifies is **information**, not a
-bug, unless it crosses a trust boundary you can demonstrate. `airecon` labels
+bug, unless it crosses a trust boundary you can demonstrate. `ai-recon` labels
 every finding with a confidence level for exactly this reason.
 
 When you report: lead with **demonstrated impact** ("the agent returned tenant

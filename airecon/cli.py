@@ -11,7 +11,7 @@ Usage:
   ai-recon rules     [--query "..."]   # check queries against detection rules
 
 Global options:
-  --scope-file PATH   scope config (default ~/.config/airecon/scope.yaml)
+  --scope-file PATH   scope config (default ~/.config/ai-recon/scope.yaml)
   --allow HOST        add an allow entry for this run
   --allow-private     permit private/loopback targets (ignore allow-list)
   --min-delay N       seconds between requests (rate-limit respect)
@@ -37,7 +37,7 @@ from urllib.parse import urlparse
 
 import yaml
 
-from . import __version__, BANNER
+from . import __version__, banner
 from .core.findings import Confidence, Findings
 from .core.http import HttpClient
 from .core.report import write_report
@@ -45,7 +45,7 @@ from .core.scope import Scope, ScopeError
 from .modules import (agent, endpoints, evasion, fingerprint, headers,
                       honeypot, jsrecon, rag, repomine)
 
-DEFAULT_SCOPE_FILE = Path.home() / ".config" / "airecon" / "scope.yaml"
+DEFAULT_SCOPE_FILE = Path.home() / ".config" / "ai-recon" / "scope.yaml"
 
 
 # --------------------------------------------------------------------------- #
@@ -100,7 +100,7 @@ def outdir(args, target: str) -> Path:
         return Path(args.out)
     host = urlparse(target if "://" in target else "http://" + target).hostname or "target"
     ts = _dt.datetime.now().strftime("%Y%m%d-%H%M%S")
-    return Path.cwd() / "airecon-out" / f"{host}-{ts}"
+    return Path.cwd() / "ai-recon-out" / f"{host}-{ts}"
 
 
 def _norm(target: str) -> str:
@@ -233,7 +233,7 @@ def cmd_full(args) -> int:
 def cmd_repo(args) -> int:
     findings = Findings()
     repomine.run(args.path, findings)
-    out = Path(args.out) if args.out else Path.cwd() / "airecon-out" / "repo"
+    out = Path(args.out) if args.out else Path.cwd() / "ai-recon-out" / "repo"
     _finish(args, args.path, findings, out,
             coverage={"repo source": args.path},
             not_tested=["runtime behavior", "network surface"],
@@ -347,7 +347,7 @@ def main(argv=None) -> int:
     if args.command == "scope":
         return args.func(args)
     if not getattr(args, "quiet", False):
-        print(BANNER)
+        print(banner())
     try:
         return args.func(args)
     except ScopeError as e:

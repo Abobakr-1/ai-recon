@@ -1,72 +1,85 @@
 #!/usr/bin/env bash
-# airecon installer for Kali Linux / Debian-based systems.
+# AI RECON - one-command installer for Kali Linux / Debian-based systems.
+# Developed by: AboBakr Mohamed
 #
-#   sudo ./install.sh          system-wide launcher at /usr/local/bin/airecon
-#   ./install.sh --user        user venv + launcher in ~/.local/bin
+# Usage (recommended — one line, no clone needed):
+#   curl -fsSL https://raw.githubusercontent.com/Abobakr-1/ai-recon/master/bootstrap.sh | sudo bash
 #
-# Only installs: python3-venv (if missing), requests, PyYAML, and a launcher.
+# Or from a local clone:
+#   ./install.sh            # system-wide  -> /usr/local/bin/ai-recon
+#   ./install.sh --user     # current user -> ~/.local/bin/ai-recon
+#
 set -euo pipefail
 
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MODE="system"
-[[ "${1:-}" == "--user" ]] && MODE="user"
+REPO_URL="https://github.com/Abobakr-1/ai-recon.git"
+MODE="${1:-system}"
+[[ "$MODE" == "--user" ]] && MODE="user"
 
-echo "[*] airecon installer (mode: $MODE)"
+step() { printf '\n\033[1;36m==> %s\033[0m\n' "$1"; }
+ok()   { printf '\033[1;32m[+]\033[0m %s\n' "$1"; }
+die()  { printf '\033[1;31m[!]\033[0m %s\n' "$1" >&2; exit 1; }
 
-# --- python check ---------------------------------------------------------- #
-PY="$(command -v python3 || true)"
-if [[ -z "$PY" ]]; then
-  echo "[!] python3 not found. Install it first: sudo apt install -y python3 python3-venv python3-pip"
-  exit 1
+step "AI RECON installer (mode: $MODE)"
+
+# --- 1. prerequisites ------------------------------------------------------ #
+command -v python3 >/dev/null 2>&1 || die "python3 not found. Run: sudo apt update && sudo apt install -y python3 python3-venv python3-pip"
+PY="$(command -v python3)"
+ok "python3: $($PY --version 2>&1)"
+
+if ! "$PY" -m venv --help >/dev/null 2>&1; then
+  die "python3-venv missing. Run: sudo apt install -y python3-venv"
 fi
-echo "[*] python3: $($PY --version)"
 
-# --- venv ------------------------------------------------------------------ #
-if [[ "$MODE" == "system" ]]; then
-  VENV="/opt/airecon/venv"
-  BIN="/usr/local/bin"
-  mkdir -p /opt/airecon
+# --- 2. fetch the source (skip if already inside a clone) ------------------ #
+SRC_DIR=""
+if [[ -f "$(pwd)/pyproject.toml" && -d "$(pwd)/airecon" ]]; then
+  SRC_DIR="$(pwd)"
+  ok "using local source: $SRC_DIR"
 else
-  VENV="$HOME/.local/share/airecon/venv"
-  BIN="$HOME/.local/bin"
-  mkdir -p "$HOME/.local/share/airecon" "$BIN"
+  command -v git >/dev/null 2>&1 || die "git not found. Run: sudo apt install -y git"
+  SRC_DIR="$(mktemp -d)/ai-recon"
+  step "cloning $REPO_URL"
+  git clone --depth 1 "$REPO_URL" "$SRC_DIR" || die "git clone failed"
 fi
 
-echo "[*] creating virtualenv at $VENV"
-"$PY" -m venv "$VENV" 2>/dev/null || {
-  echo "[!] venv creation failed. Install python3-venv: sudo apt install -y python3-venv"
-  exit 1
-}
+# --- 3. install into a virtualenv ------------------------------------------ #
+if [[ "$MODE" == "system" ]]; then
+  VENV="/opt/ai-recon/venv"; BIN="/usr/local/bin"
+else
+  VENV="$HOME/.local/share/ai-recon/venv"; BIN="$HOME/.local/bin"
+fi
+mkdir -p "$(dirname "$VENV")" "$BIN"
 
-echo "[*] installing airecon + dependencies"
+step "creating virtualenv: $VENV"
+"$PY" -m venv "$VENV"
+
+step "installing AI RECON + dependencies (requests, PyYAML)"
 "$VENV/bin/pip" install --quiet --upgrade pip
-"$VENV/bin/pip" install --quiet -e "$HERE"
+"$VENV/bin/pip" install --quiet "$SRC_DIR"
 
-# --- launcher -------------------------------------------------------------- #
-echo "[*] writing launchers: $BIN/ai-recon and $BIN/airecon"
-cat > "$BIN/ai-recon" <<EOF
+# --- 4. launchers ---------------------------------------------------------- #
+step "writing launchers into $BIN"
+for name in ai-recon airecon; do
+  cat > "$BIN/$name" <<EOF
 #!/usr/bin/env bash
 exec "$VENV/bin/ai-recon" "\$@"
 EOF
-cat > "$BIN/airecon" <<EOF
-#!/usr/bin/env bash
-exec "$VENV/bin/ai-recon" "\$@"
-EOF
-chmod +x "$BIN/ai-recon" "$BIN/airecon"
+  chmod +x "$BIN/$name"
+  ok "installed: $BIN/$name"
+done
 
-echo
-echo "[+] installed: AI RECON (developed by AboBakr Mohamed)"
-echo "    run:  ai-recon --help     (alias: airecon)"
+# --- 5. verify + PATH hint ------------------------------------------------- #
+step "verifying installation"
+"$BIN/ai-recon" --version || die "verification failed"
+
 if [[ "$MODE" == "user" ]]; then
   case ":$PATH:" in
     *":$HOME/.local/bin:"*) ;;
-    *) echo "    note: add $HOME/.local/bin to PATH:
-      echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc && source ~/.bashrc" ;;
+    *) printf '\n\033[1;33m[!]\033[0m Add this to your shell, then reopen the terminal:\n'
+       printf '    echo '\''export PATH="$HOME/.local/bin:$PATH"'\'' >> ~/.bashrc && source ~/.bashrc\n' ;;
   esac
 fi
 
-# --- optional: kali tooling hint ------------------------------------------ #
-echo
-echo "[i] Optional complements (native recon tools) if you want them:"
-echo "    sudo apt install -y nmap curl jq git"
-echo "    pipx install garak   # for payload-level LLM red-teaming after recon"
+printf '\n\033[1;32m[+] Done.\033[0m  AI RECON is installed (developed by AboBakr Mohamed).\n'
+printf '    Try:   ai-recon --help\n'
+printf '    First: ai-recon scope --allow <your-target> --save\n\n'

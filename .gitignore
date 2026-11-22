@@ -8,7 +8,7 @@ dist/
 venv/
 
 # airecon outputs & evidence (never commit engagement data)
-airecon-out/
+ai-recon-out/
 *-out/
 evidence/
 findings.json
